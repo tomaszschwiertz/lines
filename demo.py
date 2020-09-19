@@ -73,3 +73,6 @@ for device in DEVICES:  # we iterate over all devices in our device list
 
     conf.unlock()
     dev.close()
+
+#configure on Juniper boxes:
+#set system services netconf ssh
