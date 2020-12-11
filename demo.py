@@ -1,6 +1,7 @@
+#!/usr/bin/env python3
 import requests
-
-
+from jnpr.junos import Device
+from jnpr.junos.utils.config import Config
 
 url="https://raw.githubusercontent.com/tomaszschwiertz/lines/master/prefix"
 read_data = requests.get(url).content.decode('utf8')
@@ -9,7 +10,7 @@ print(read_data)
 
 
 list = read_data.split()
-str3 = """
+set_command = """
 """
 
 
@@ -17,54 +18,43 @@ str3 = """
 
 
 for x in range (0, len(list)):
-    str3+=("set "+list[x] + "\n")
+    set_command+=("set policy-options prefix-list PXL-CUSTOMERS " + list[x] + "\n")
 
 #print (list)
-print(str3)
+print(set_command)
+delete_command = "delete policy-options prefix-list PXL-CUSTOMERS"
 
 #-------------------------accessing PE's
 
-from jnpr.junos import Device
-from jnpr.junos.utils.config import Config
 
-#login parameters
-r1u = "ops"
-r1p = "Opsops"
-r1ip = "172.16.0.0"
 
-dev = Device (host=r1ip, port=830, user=r1u, password=r1p)
-dev.open()
-conf = Config(dev)
-conf.lock()
-conf.load(str3, format='set')
-conf.pdiff()
-config_difference = conf.pdiff() #todo save and send via e-mail
-
-if conf.commit_check():
-    conf.commit()
-else:
-    conf.rollback()
-
-conf.unlock()
-dev.close()
 
 
 
 
 #--------------
-U="netconf"
-P="netconf123$"
-DEVICES = ["172.16.0.0", "172.16.0.1"]
+U="netconfuser"
+P="netconf123"
+DEVICES = ["192.0.2.1", "192.0.2.2", "192.0.2.3"]
+
 
 for device in DEVICES:  # we iterate over all devices in our device list
 
-    dev = Device(DEVICES[device], port=830, user=U, password=P)
+    dev = Device(device, port=830, user=U, password=P)
     dev.open()
+
+    print('Updating '+dev.facts['hostname']+' | '+device)
+
     conf = Config(dev)
     conf.lock()
-    conf.load(str3, format='set')
+    #conf.load(delete_command, format='set')
+    conf.load(set_command, format='set')
     conf.pdiff()
-    config_difference = conf.pdiff()  # todo save and send via e-mail
+    #config_difference = conf.pdiff()  # todo save and send via e-mail
+    #print(config_difference)
+
+
+
 
     if conf.commit_check():
         conf.commit()
@@ -74,5 +64,4 @@ for device in DEVICES:  # we iterate over all devices in our device list
     conf.unlock()
     dev.close()
 
-#configure on Juniper boxes:
-#set system services netconf ssh
+
