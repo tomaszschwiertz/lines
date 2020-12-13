@@ -1,1 +1,51 @@
-
+set version "20200406.200910_rbu-builder.r1099091 [rbu-builder]"
+set system host-name PE1
+set system root-authentication encrypted-password "$6$6xO1.HNG$XXqzJ04PBXbkKVc3mk8/O5d32fDLqx6TjVJK7IyGSWdyGKr23VdGxsc7z/jm16bTHCpsVjTzyM8H7CopUZC810"
+set system login user netconfuser uid 2100
+set system login user netconfuser class super-user
+set system login user netconfuser authentication encrypted-password "$6$GUsXMLSA$6rBVw5YGyndE7gu9yDsr1VvNFPAII.vFscdUE71v5usxyB7lNoOLx/g/M50H1tMQXOL4JjQ7EFq4Q.uadIlZh0"
+set system login user ops uid 2001
+set system login user ops class super-user
+set system login user ops authentication encrypted-password "$6$NO387E/x$1uZlO1gsaec9ki/BVsyc1TNYPeCfPisyJKWy/prV66tNhfgcND3i8xPvzK07osmvL2cv5XXPf8t3HntAB4A2M."
+set system services ssh
+set system services netconf ssh port 830
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands any
+set system processes dhcp-service traceoptions file dhcp_logfile
+set system processes dhcp-service traceoptions file size 10m
+set system processes dhcp-service traceoptions level all
+set system processes dhcp-service traceoptions flag packet
+set chassis fpc 0 lite-mode             
+set interfaces ge-0/0/1 unit 0 family inet address 192.0.2.10/31
+set interfaces ge-0/0/1 unit 0 family mpls
+set interfaces ge-0/0/4 unit 0 family inet address 203.0.113.11/24
+set interfaces fxp0 unit 0 family inet dhcp vendor-id Juniper:vmx:VM5F81A39F81
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-type stateful
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-ia-type ia-na
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-identifier duid-type duid-ll
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client vendor-id Juniper:vmx:VM5F81A39F81
+set interfaces lo0 unit 0 family inet address 192.0.2.1/32
+set policy-options prefix-list PXL-CUSTOMERS 10.128.16.0/22
+set policy-options prefix-list PXL-CUSTOMERS 10.250.64.0/22
+set policy-options prefix-list PXL-CUSTOMERS 192.0.2.0/24
+set policy-options policy-statement LEVEL4-OUT term BADLENGTH from route-filter 0.0.0.0/0 prefix-length-range /25-/32
+set policy-options policy-statement LEVEL4-OUT term BADLENGTH then reject
+set policy-options policy-statement LEVEL4-OUT term ALLOWED-PXL from prefix-list-filter PXL-CUSTOMERS orlonger
+set policy-options policy-statement LEVEL4-OUT term ALLOWED-PXL then accept
+set policy-options policy-statement LEVEL4-OUT term CATCHALL then reject
+set policy-options policy-statement n-h-s then next-hop self
+set routing-options router-id 192.0.2.1
+set routing-options autonomous-system 100
+set protocols router-advertisement interface fxp0.0
+set protocols bgp group iBGP type internal
+set protocols bgp group iBGP local-address 192.0.2.1
+set protocols bgp group iBGP export n-h-s
+set protocols bgp group iBGP neighbor 192.0.2.6
+set protocols bgp group TRANSIT neighbor 203.0.113.10 description TRANSIT-LEVEL4
+set protocols bgp group TRANSIT neighbor 203.0.113.10 export LEVEL4-OUT
+set protocols bgp group TRANSIT neighbor 203.0.113.10 peer-as 200
+set protocols ldp interface ge-0/0/1.0
+set protocols ospf area 0.0.0.0 interface lo0.0
+set protocols ospf area 0.0.0.0 interface ge-0/0/1.0
