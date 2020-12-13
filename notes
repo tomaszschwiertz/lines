@@ -1,0 +1,131 @@
+import requests
+//library installed
+
+import Device
+import Config
+
+
+102.222.28.0/22
+154.73.216.0/22
+2c0f:f798::/32
+
+102.222.0.0/22
+
+
+//add packages to scripting server
+pip install ncclient
+pip install junos-eznc
+
+//configure on Juniper boxes:
+set system services netconf ssh
+
+set system login user netconfuser uid 2100
+set system login user netconfuser class super-user
+set system login user netconfuser authentication encrypted-password netconf123
+
+
+-------------------------
+#login parameters
+r1u = "netconfuser"
+r1p = "netconf123"
+r1ip = "192.0.2.1"
+
+dev = Device (host=r1ip, port=830, user=r1u, password=r1p)
+dev.open()
+conf = Config(dev)
+conf.lock()
+conf.load(delete_command, format='set')
+conf.load(set_command, format='set')
+conf.pdiff()
+config_difference = conf.pdiff() #todo save and send via e-mail
+
+if conf.commit_check():
+    conf.commit()
+else:
+    conf.rollback()
+
+conf.unlock()
+dev.close()
+
+----this finally worked:
+
+1.
+sudo apt install -y python3-pip
+
+2.
+pip3 install junos-eznc
+
+
+try:
+pip3 install ncclient
+
+
+----------working script, unpolished-------------
+
+#!/usr/bin/env python3
+import requests
+from jnpr.junos import Device
+from jnpr.junos.utils.config import Config
+
+url="https://raw.githubusercontent.com/tomaszschwiertz/lines/master/prefix"
+read_data = requests.get(url).content.decode('utf8')
+
+print(read_data)
+
+
+list = read_data.split()
+set_command = """
+"""
+
+
+#str="set " + "set ".join(str(i) + "\n" for i in list)
+
+
+for x in range (0, len(list)):
+    set_command+=("set policy-options prefix-list PXL-CUSTOMERS " + list[x] + "\n")
+
+#print (list)
+print(set_command)
+delete_command = "delete policy-options prefix-list PXL-CUSTOMERS"
+
+#-------------------------accessing PE's
+
+
+
+
+
+
+
+#--------------
+U="netconfuser"
+P="netconf123"
+DEVICES = ["192.0.2.1", "192.0.2.2", "192.0.2.3"]
+
+
+for device in DEVICES:  # we iterate over all devices in our device list
+
+    dev = Device(device, port=830, user=U, password=P)
+    dev.open()
+
+    print('Updating '+dev.facts['hostname']+' | '+device)
+
+    conf = Config(dev)
+    conf.lock()
+    #conf.load(delete_command, format='set')
+    conf.load(set_command, format='set')
+    conf.pdiff()
+    #config_difference = conf.pdiff()  # todo save and send via e-mail
+    #print(config_difference)
+
+
+
+
+    if conf.commit_check():
+        conf.commit()
+    else:
+        conf.rollback()
+
+    conf.unlock()
+    dev.close()
+
+
