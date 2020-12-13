@@ -1,0 +1,35 @@
+set version "20200406.200910_rbu-builder.r1099091 [rbu-builder]"
+set system host-name CUST-A
+set system root-authentication encrypted-password "$6$6xO1.HNG$XXqzJ04PBXbkKVc3mk8/O5d32fDLqx6TjVJK7IyGSWdyGKr23VdGxsc7z/jm16bTHCpsVjTzyM8H7CopUZC810"
+set system login user ops uid 2001
+set system login user ops class super-user
+set system login user ops authentication encrypted-password "$6$NO387E/x$1uZlO1gsaec9ki/BVsyc1TNYPeCfPisyJKWy/prV66tNhfgcND3i8xPvzK07osmvL2cv5XXPf8t3HntAB4A2M."
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands any
+set system processes dhcp-service traceoptions file dhcp_logfile
+set system processes dhcp-service traceoptions file size 10m
+set system processes dhcp-service traceoptions level all
+set system processes dhcp-service traceoptions flag packet
+set chassis fpc 0 lite-mode
+set interfaces ge-0/0/5 unit 0 family inet address 192.0.2.21/31
+set interfaces fxp0 unit 0 family inet dhcp vendor-id Juniper:vmx:VM5F81A3E992
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-type stateful
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-ia-type ia-na
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-identifier duid-type duid-ll
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client vendor-id Juniper:vmx:VM5F81A3E992
+set interfaces lo0 unit 0 family inet address 10.128.16.1/32 primary
+set interfaces lo0 unit 0 family inet address 10.128.16.1/32 preferred
+set interfaces lo0 unit 0 family inet address 10.250.64.1/32
+set policy-options policy-statement export-static from protocol static
+set policy-options policy-statement export-static then accept
+set policy-options policy-statement n-h-s then next-hop self
+set routing-options static route 10.128.16.0/22 discard
+set routing-options static route 10.250.64.0/22 discard
+set routing-options router-id 10.128.16.1
+set routing-options autonomous-system 500
+set protocols router-advertisement interface fxp0.0
+set protocols bgp group eBGP export export-static
+set protocols bgp group eBGP neighbor 192.0.2.20 description "ACME Telekom"
+set protocols bgp group eBGP neighbor 192.0.2.20 peer-as 100
