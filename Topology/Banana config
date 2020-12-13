@@ -1,0 +1,28 @@
+set version "20200406.200910_rbu-builder.r1099091 [rbu-builder]"
+set system host-name Banana
+set system root-authentication encrypted-password "$6$6xO1.HNG$XXqzJ04PBXbkKVc3mk8/O5d32fDLqx6TjVJK7IyGSWdyGKr23VdGxsc7z/jm16bTHCpsVjTzyM8H7CopUZC810"
+set system login user ops uid 2001
+set system login user ops class super-user
+set system login user ops authentication encrypted-password "$6$NO387E/x$1uZlO1gsaec9ki/BVsyc1TNYPeCfPisyJKWy/prV66tNhfgcND3i8xPvzK07osmvL2cv5XXPf8t3HntAB4A2M."
+set system syslog user * any emergency
+set system syslog file messages any notice
+set system syslog file messages authorization info
+set system syslog file interactive-commands interactive-commands any
+set system processes dhcp-service traceoptions file dhcp_logfile
+set system processes dhcp-service traceoptions file size 10m
+set system processes dhcp-service traceoptions level all
+set system processes dhcp-service traceoptions flag packet
+set chassis fpc 0 lite-mode
+set interfaces ge-0/0/6 unit 0 family inet address 203.0.113.14/24
+set interfaces ge-0/0/9 unit 0 family inet address 10.6.8.6/24
+set interfaces fxp0 unit 0 family inet dhcp vendor-id Juniper:vmx:VM5F81A3873D
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-type stateful
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-ia-type ia-na
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client client-identifier duid-type duid-ll
+set interfaces fxp0 unit 0 family inet6 dhcpv6-client vendor-id Juniper:vmx:VM5F81A3873D
+set interfaces lo0 unit 0 family inet address 203.0.113.3/32
+set routing-options router-id 203.0.113.3
+set routing-options autonomous-system 400
+set protocols router-advertisement interface fxp0.0
+set protocols bgp group google neighbor 10.6.8.8 peer-as 8888
+set protocols bgp group ACME neighbor 203.0.113.15 peer-as 100
